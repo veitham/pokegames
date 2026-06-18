@@ -1,6 +1,8 @@
-# Poké Connections
+# Poke Games
 
-Jeu web inspiré de **Connections** (NYT), avec des Pokémon.
+Collection de mini-jeux Pokémon : **Connections**, **Types Pokémon** et **Forêt 3D**.
+
+Le mode Connections est inspiré du jeu **Connections** (NYT).
 
 ## Fonctionnalités
 
@@ -41,10 +43,6 @@ npx serve .
 Puis ouvrez [http://localhost:8080](http://localhost:8080) dans votre navigateur.
 
 La forêt 3D est accessible via l'onglet **Forêt 3D** ou directement sur [http://localhost:8080/cizayox-3d/](http://localhost:8080/cizayox-3d/).
-
-## Hébergement gratuit
-
-Le projet est un site statique : uploadez le dossier tel quel sur [Netlify Drop](https://app.netlify.com/drop), **GitHub Pages**, **Cloudflare Pages** ou **Vercel**. Aucune compilation nécessaire.
 
 ## Comment jouer (Connections)
 

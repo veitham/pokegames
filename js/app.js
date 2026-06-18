@@ -288,9 +288,19 @@ function generationsEqual(a, b) {
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
 
+function setGenerationFiltersDisabled(disabled) {
+  if (!genFiltersEl) return;
+  genFiltersEl.querySelectorAll('input').forEach((input) => {
+    input.disabled = disabled;
+  });
+  btnApplyGens?.toggleAttribute('disabled', disabled);
+}
+
 async function loadPoolForGenerations(generations) {
   showLoading();
+  setGenerationFiltersDisabled(true);
   activeGenerations = [...generations];
+  setCheckedGenerations(activeGenerations);
 
   try {
     pokemonPool = await loadPokemonPool(activeGenerations, (loaded, total) => {
@@ -304,22 +314,27 @@ async function loadPoolForGenerations(generations) {
     if (loadingProgressEl) {
       loadingProgressEl.textContent = 'Erreur de chargement';
     }
+    hideLoading();
+    setCheckedGenerations(activeGenerations);
     console.error(err);
     alert('Impossible de charger les Pokémon. Vérifiez votre connexion internet.');
+  } finally {
+    setGenerationFiltersDisabled(false);
   }
 }
 
-function applyGenerationSelection() {
+/** @param {HTMLInputElement} [changedInput] */
+function applyGenerationSelection(changedInput) {
   const selected = getCheckedGenerations();
 
   if (selected.length === 0) {
     flashHint('Sélectionnez au moins une génération.');
-    setCheckedGenerations(activeGenerations);
+    if (changedInput) changedInput.checked = true;
+    else setCheckedGenerations(activeGenerations);
     return;
   }
 
   if (generationsEqual(selected, activeGenerations)) {
-    flashHint('Cette sélection est déjà active.');
     return;
   }
 
@@ -419,6 +434,14 @@ btnShuffle?.addEventListener('click', () => {
 btnNew?.addEventListener('click', startNewGame);
 btnRestart?.addEventListener('click', startNewGame);
 
-btnApplyGens?.addEventListener('click', applyGenerationSelection);
+btnApplyGens?.addEventListener('click', () => applyGenerationSelection());
+
+genFiltersEl?.querySelectorAll('input').forEach((input) => {
+  input.addEventListener('change', () => {
+    if (input instanceof HTMLInputElement) {
+      applyGenerationSelection(input);
+    }
+  });
+});
 
 init();

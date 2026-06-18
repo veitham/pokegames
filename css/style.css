@@ -227,6 +227,15 @@ body {
   user-select: none;
 }
 
+.gen-filter:has(input:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.gen-filter input:disabled {
+  cursor: not-allowed;
+}
+
 .gen-filter:hover {
   border-color: var(--text-muted);
   color: var(--text);

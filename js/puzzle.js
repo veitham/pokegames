@@ -179,6 +179,11 @@ function tryBuildPuzzle(pool, templates) {
   return groups;
 }
 
+/** @param {import('./types.js').Pokemon[]} pool */
+function getGenerationsInPool(pool) {
+  return new Set(pool.map((p) => p.generation));
+}
+
 /**
  * @param {import('./types.js').CategoryTemplate} template
  * @param {import('./types.js').Pokemon[]} pool
@@ -188,11 +193,18 @@ function isCategoryEligible(template, pool) {
   if (matches.length < SELECTION_SIZE) return false;
 
   if (template.id.startsWith('gen-')) {
-    const otherCount = pool.length - matches.length;
-    return otherCount >= SELECTION_SIZE;
+    const genNum = Number(template.id.slice(4));
+    if (!getGenerationsInPool(pool).has(genNum)) return false;
+    return pool.length - matches.length >= SELECTION_SIZE;
   }
 
   return true;
+}
+
+/** @param {import('./types.js').CategoryTemplate[]} templates */
+function pickRandomTemplate(templates) {
+  if (!templates.length) return null;
+  return shuffle(templates)[0];
 }
 
 /**
@@ -211,13 +223,12 @@ export function generatePuzzle(pool) {
 
   for (let attempt = 0; attempt < 200; attempt++) {
     const templates = attempt < 80
-      ? [
-          shuffle(byDifficulty[1])[0],
-          shuffle(byDifficulty[2])[0],
-          shuffle(byDifficulty[3])[0],
-          shuffle(byDifficulty[4])[0],
-        ]
+      ? [1, 2, 3, 4]
+          .map((difficulty) => pickRandomTemplate(byDifficulty[difficulty]))
+          .filter(Boolean)
       : shuffle(eligible).slice(0, 4);
+
+    if (templates.length < 4) continue;
 
     const groups = tryBuildPuzzle(pool, templates);
     if (groups) {
