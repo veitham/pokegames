@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cizayox — Debug</title>
+  <style>
+    body { font-family: Consolas, monospace; background: #111; color: #eee; padding: 1.5rem; }
+    h1 { color: #ffcb05; font-family: system-ui, sans-serif; }
+    .ok { color: #6f6; }
+    .fail { color: #f66; }
+    li { margin: 0.4rem 0; }
+    pre { background: #222; padding: 1rem; border-radius: 8px; overflow: auto; }
+    a { color: #ffcb05; }
+  </style>
+</head>
+<body>
+  <h1>Cizayox — Diagnostic</h1>
+  <p>URL : <code id="url"></code></p>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js"
+      }
+    }
+  </script>
+  <ul id="log"></ul>
+  <pre id="detail"></pre>
+  <p><a href="./index.html">← Retour au jeu</a></p>
+
+  <script type="module">
+    const logEl = document.getElementById('log');
+    const detailEl = document.getElementById('detail');
+    document.getElementById('url').textContent = location.href;
+
+    function step(label, ok, info = '') {
+      const li = document.createElement('li');
+      li.className = ok ? 'ok' : 'fail';
+      li.textContent = `${ok ? '✓' : '✗'} ${label}${info ? ' — ' + info : ''}`;
+      logEl.appendChild(li);
+    }
+
+    async function runCheck(label, fn) {
+      try {
+        const result = await fn();
+        step(label, true, result || '');
+        return true;
+      } catch (err) {
+        step(label, false, err.message);
+        detailEl.textContent = err.stack || String(err);
+        return false;
+      }
+    }
+
+    step('Protocole HTTP', location.protocol === 'http:' || location.protocol === 'https:',
+      location.protocol === 'file:' ? 'OUVRE VIA http://localhost:8080/cizayox-3d/debug.html' : location.protocol);
+
+    if (location.protocol === 'file:') {
+      throw new Error('Ouvre cette page via un serveur local, pas en double-cliquant le fichier HTML.');
+    }
+
+    await runCheck('Fetch three.module.js', async () => {
+      const r = await fetch(new URL('./vendor/three/three.module.js', import.meta.url));
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const len = r.headers.get('content-length');
+      return len ? `${Math.round(len / 1024)} Ko` : 'ok';
+    });
+
+    await runCheck('GLTFLoader utilise chemins relatifs', async () => {
+      const r = await fetch(new URL('./vendor/three/addons/loaders/GLTFLoader.js', import.meta.url));
+      const text = await r.text();
+      if (text.includes("from 'three'") || text.includes('from "three"')) {
+        throw new Error('Fichier pas à jour — Ctrl+F5');
+      }
+      return 'three.module.js relatif OK';
+    });
+
+    let THREE;
+    await runCheck('Import Three.js', async () => {
+      THREE = await import('./vendor/three/three.module.js');
+      return `revision ${THREE.REVISION}`;
+    });
+
+    await runCheck('Import GLTFLoader', async () => {
+      await import('./vendor/three/addons/loaders/GLTFLoader.js');
+      return 'ok';
+    });
+
+    await runCheck('Import main.js modules', async () => {
+      await import('./js/tuning-state.js');
+      await import('./js/scizor-model.js');
+      await import('./js/scizor-animation.js');
+      return 'ok';
+    });
+
+    await runCheck('WebGL disponible', async () => {
+      const c = document.createElement('canvas');
+      const gl = c.getContext('webgl2') || c.getContext('webgl');
+      if (!gl) throw new Error('Pas de contexte WebGL');
+      return gl.getParameter(gl.VERSION);
+    });
+
+    await runCheck('Modèle GLB accessible', async () => {
+      const r = await fetch(new URL('./models/pokemon_sv_scizor.glb', import.meta.url), { method: 'HEAD' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return 'pokemon_sv_scizor.glb';
+    });
+
+    await runCheck('Exporter startGame depuis main.js', async () => {
+      const mod = await import('./js/main.js');
+      if (typeof mod.startGame !== 'function') throw new Error('startGame manquant');
+      return 'OK — ouvre index.html pour jouer';
+    });
+  </script>
+</body>
+</html>

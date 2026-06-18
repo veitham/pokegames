@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poké Connections</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <div class="header__brand">
+        <span class="header__pokeball" aria-hidden="true"></span>
+        <h1>Poké Connections</h1>
+      </div>
+      <p class="header__subtitle" id="header-subtitle">Trouvez les groupes de quatre Pokémon qui partagent un lien commun.</p>
+      <nav class="app-nav" role="tablist" aria-label="Jeux">
+        <button type="button" class="app-nav__tab app-nav__tab--active" data-view="connections" role="tab" aria-selected="true">Connections</button>
+        <button type="button" class="app-nav__tab" data-view="type-game" role="tab" aria-selected="false">Types Pokémon</button>
+        <a class="app-nav__tab app-nav__tab--link" href="cizayox-3d/index.html">Forêt 3D</a>
+      </nav>
+    </header>
+
+    <div id="loading" class="loading">
+      <div class="loading__spinner"></div>
+      <p class="loading__text">Chargement des Pokémon depuis l'API…</p>
+      <p class="loading__progress" id="loading-progress">0 / …</p>
+    </div>
+
+    <main id="game" class="game hidden">
+      <div class="settings">
+        <p class="settings__label">Générations incluses</p>
+        <div class="gen-filters" id="gen-filters" role="group" aria-label="Générations incluses">
+          <label class="gen-filter"><input type="checkbox" value="1" checked /><span>I</span></label>
+          <label class="gen-filter"><input type="checkbox" value="2" checked /><span>II</span></label>
+          <label class="gen-filter"><input type="checkbox" value="3" checked /><span>III</span></label>
+          <label class="gen-filter"><input type="checkbox" value="4" checked /><span>IV</span></label>
+          <label class="gen-filter"><input type="checkbox" value="5" checked /><span>V</span></label>
+          <label class="gen-filter"><input type="checkbox" value="6" /><span>VI</span></label>
+          <label class="gen-filter"><input type="checkbox" value="7" /><span>VII</span></label>
+          <label class="gen-filter"><input type="checkbox" value="8" /><span>VIII</span></label>
+        </div>
+        <button type="button" class="btn btn--ghost" id="btn-apply-gens">Appliquer</button>
+      </div>
+
+      <div class="game__toolbar">
+        <div class="mistakes" id="mistakes">
+          <span class="mistakes__label">Erreurs restantes :</span>
+          <div class="mistakes__dots">
+            <span class="mistakes__dot"></span>
+            <span class="mistakes__dot"></span>
+            <span class="mistakes__dot"></span>
+            <span class="mistakes__dot"></span>
+          </div>
+        </div>
+        <button type="button" class="btn btn--ghost" id="btn-shuffle">Mélanger</button>
+        <button type="button" class="btn btn--ghost" id="btn-new">Nouvelle partie</button>
+      </div>
+
+      <div class="board-container">
+        <div class="solved-rows" id="solved-rows" aria-label="Groupes trouvés"></div>
+        <div class="board" id="board" role="grid" aria-label="Grille de Pokémon"></div>
+      </div>
+
+      <div class="controls">
+        <button type="button" class="btn btn--primary" id="btn-submit" disabled>Regrouper</button>
+        <button type="button" class="btn btn--secondary" id="btn-deselect">Désélectionner</button>
+      </div>
+
+      <p class="hint" id="hint">Sélectionnez quatre Pokémon, puis cliquez sur « Regrouper ».</p>
+
+      <div id="game-end" class="game-end hidden">
+        <h2 class="game-end__title" id="game-end-title"></h2>
+        <p class="game-end__message" id="game-end-message"></p>
+        <button type="button" class="btn btn--primary btn--large" id="btn-restart">Relancer une partie</button>
+      </div>
+    </main>
+
+    <main id="type-game-view" class="type-game-view hidden" aria-label="Mini-jeu Types Pokémon"></main>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cizayox — Exploration 3D</title>
+  <link rel="stylesheet" href="./css/style.css" />
+</head>
+<body>
+  <div id="hud">
+    <header class="hud__header">
+      <h1>Cizayox — Forêt 3D</h1>
+      <a class="hud__link" href="../index.html">← Retour au jeu Connections</a>
+    </header>
+    <div id="combat-hud" class="combat-hud">
+      <div class="hp-bar">
+        <span class="hp-bar__label">Cizayox</span>
+        <div class="hp-bar__track">
+          <div id="player-hp-fill" class="hp-bar__fill hp-bar__fill--player"></div>
+        </div>
+        <span id="player-hp-text" class="hp-bar__text">100 / 100</span>
+      </div>
+      <div class="hp-bar">
+        <span class="hp-bar__label">Zoroark</span>
+        <div class="hp-bar__track">
+          <div id="enemy-hp-fill" class="hp-bar__fill hp-bar__fill--enemy"></div>
+        </div>
+        <span id="enemy-hp-text" class="hp-bar__text">100 / 100</span>
+      </div>
+    </div>
+    <p id="combat-status" class="combat-status"></p>
+    <p class="hud__hint">
+      <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> pour se déplacer ·
+      <kbd>Espace</kbd> pour sauter ·
+      <strong>clic</strong> sur la scène pour jouer ·
+      souris pour la caméra ·
+      <strong>clic gauche</strong> pour tirer ·
+      <strong>clic droit</strong> maintenu pour viser ·
+      affronte <strong>Zoroark</strong> ·
+      <kbd>Échap</kbd> pour libérer la souris
+    </p>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="loading__spinner"></div>
+    <p>Chargement de la forêt…</p>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div id="crosshair" class="crosshair" aria-hidden="true">
+    <span class="crosshair__line crosshair__line--h"></span>
+    <span class="crosshair__line crosshair__line--v"></span>
+    <span class="crosshair__dot"></span>
+  </div>
+
+  <div id="error-overlay" class="error-overlay">
+    <p class="error-overlay__title">Erreur de chargement</p>
+    <pre id="error-message" class="error-overlay__msg">—</pre>
+    <p class="error-overlay__hint">
+      Ouvre <a href="./debug.html">debug.html</a> pour le diagnostic détaillé.
+    </p>
+  </div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js"
+      }
+    }
+  </script>
+  <script type="module">
+    function showBootError(err) {
+      const overlay = document.getElementById('error-overlay');
+      const msg = document.getElementById('error-message');
+      const loading = document.getElementById('loading');
+      if (loading) loading.classList.add('loading--hidden');
+      if (overlay) overlay.classList.add('is-visible');
+      const text = [
+        err?.message,
+        err?.stack,
+        err?.cause ? String(err.cause) : null,
+        err ? JSON.stringify(err, Object.getOwnPropertyNames(err)) : null,
+      ].filter(Boolean).join('\n\n') || 'Erreur inconnue (aucun détail)';
+      if (msg) msg.textContent = text;
+      console.error('[Cizayox boot]', err);
+    }
+
+    try {
+      const { startGame } = await import('./js/main.js?v=23');
+      startGame();
+    } catch (err) {
+      showBootError(err);
+    }
+  </script>
+</body>
+</html>
